@@ -1,0 +1,8 @@
+Hex highlight follows mouse but dissappears when mouse leaves grid area.
+Selection stays highlighted
+Try to seperare layers of drawing so that expensive redraws are avoided.
+	Possible ideas: don't redraw map, keep in memory and continue draw over it, draw grid same way
+USe context menu to issue commands, should be too difficult
+	Use dictionary and sectoring to create regions
+	dictionary maps sector index to a FUNCTION CALLw
+

@@ -22,8 +22,11 @@ screen = pygame.display.get_surface()
 
 #blank the screen
 screen.fill(0)
-grid = HMLib.HexBoard.HexGameBoard(40, gray)
-grid.drawGrid(screen.subsurface(GRID_AREA))
+grid = HMLib.HexBoard.HexGameBoard(45, gray, (SCREEN_X, SCREEN_Y))
+grid.drawGrid()
+grid.highlightHex((0,0))
+grid.highlightHex((5,5))
+screen.blit(grid.surface, (0,0))
 
 
 ## draw the hex grid
@@ -32,10 +35,6 @@ grid.drawGrid(screen.subsurface(GRID_AREA))
 #for y in range(SCREEN_Y / (2 * HEX_SIDE)) :
 #	drawRow(screen, isOdd, y * (2 * HEX_SIDE - HEX_SIDE / 2))
 #	isOdd = False if isOdd else True
-
-
-pygame.display.flip()
-
 
 def input (events) :
 	for event in events :
@@ -46,5 +45,16 @@ def input (events) :
 loop = True
 while loop :
 	loop = input(pygame.event.get())
+	mp = pygame.mouse.get_pos()
 
+	print mp
+	print grid.getMouseHexPosition(mp)
+	grid.highlightHex(grid.getMouseHexPosition(mp))
+	grid.drawSectors()
+	screen.blit(grid.surface, (0,0))
+	pygame.display.flip()
+	raw_input("Press enter to continue")
+print grid.hex.width()
+print grid.hex.height()
+raw_input("Press enter to continue")
 pygame.quit()

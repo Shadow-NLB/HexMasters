@@ -81,8 +81,16 @@ class HexGameBoard :
 	""" This class represents a hexagonal game board.
 	At the moment it is just a container a configuration.
 	"""
-	def __init__(self, hexSideLength, gridColor) :
+	def __init__(self, hexSideLength, gridColor, boardSpaceDim	) :
+
+		self.surface = pygame.Surface(boardSpaceDim)
+		rows, columns = self.surface.get_size()
 		self.hex = Hexagon(hexSideLength)
+
+		# get a row and column count front the surface dimensions
+		self.rows = rows / (self.hex.height() - self.hex.tileOffset()[1])
+		self.columns = columns / self.hex.width()
+		
 		self.gridColor = gridColor
 	
 	def drawRow(self, surface, count, rowNumber) :
@@ -94,13 +102,103 @@ class HexGameBoard :
 		yOffset = self.hex.tileOffset()[1] * rowNumber
 		# Draw each hex in the row
 		for i in range(count) :
-			surface.blit(grassTile, (xOffset, yOffset))
 			pygame.draw.lines(surface, self.gridColor, True, self.hex.points((xOffset, yOffset)))
 			xOffset = xOffset + width
 
-	def drawGrid(self, surface) :
-		rows, columns = surface.get_size()
-		rows = rows / (self.hex.height() - self.hex.tileOffset()[1])
-		columns = columns / self.hex.width()
-		for r in range(rows) :
-			self.drawRow(surface, columns, r)
+	def drawGrid(self) :
+		for r in range(self.rows) :
+			self.drawRow(self.surface, self.columns, r)
+		return self.surface
+
+	def highlightHex(self, loc) :
+		row, col = loc
+		if (row < 0 or row > self.rows or col < 0 or col > self.columns) :
+			raise IndexError('Row/Col not valid')
+		#figure out where to drop hex highlight
+		xOffset = self.hex.tileOffset()[0] if (row % 2 == 1) else 0
+		xOffset = xOffset + col * self.hex.width()
+		yOffset = self.hex.tileOffset()[1] * row
+		pygame.draw.lines(self.surface, (0, 255, 0), True, self.hex.points((xOffset, yOffset)), 2)
+
+	def drawSectors(self) :
+		# Sector size for mouse detection
+		# yDim is the yTileOffset
+		sectorHeight = self.hex.tileOffset()[1]
+		# xDim is width of hex, 
+		sectorWidth = self.hex.width()
+
+		rows, cols = self.surface.get_size()
+		rows = rows / sectorHeight
+		cols = cols / sectorWidth
+
+		for i in xrange(rows) :
+			pygame.draw.line(self.surface, (255, 255, 0), (0, i * sectorHeight), (self.surface.get_size()[0],i * sectorHeight))
+		for i  in xrange(cols) :
+			pygame.draw.line(self.surface, (255, 255, 0), (i * sectorWidth, 0), ((i) * sectorWidth, self.surface.get_size()[1]))
+		
+
+
+	def getMouseHexPosition(self, mousePosition) :
+		
+		# Sector size for mouse detection
+		# yDim is the yTileOffset
+		sectorHeight = self.hex.tileOffset()[1]
+		# xDim is width of hex, 
+		sectorWidth = self.hex.width()
+
+		mX, mY = mousePosition
+
+		#First figure out which sector the mouse is in
+		sectorC = mX / sectorWidth
+		sectorR = mY / sectorHeight
+
+		# Normalze coordinates to sector
+		mX = mX % sectorWidth
+		mY = mY % sectorHeight
+
+		# functions that define the diagonal lines in the sector
+		nfx = lambda u: self.hex.tSideA() - (u % (sectorWidth / 2)) / 2
+		pfx = lambda u: (u % (sectorWidth / 2)) / 2 
+
+		midPoint = self.hex.tSideB()
+		oddRow = (sectorR % 2 == 1)
+
+		hexR = 0 
+		hexC = 0
+		print 'mY = {0} nfx(mX) = {1})'.format(mY, nfx(mX))
+		print 'mY = {0} pfx(mX) = {1})'.format(mY, pfx(mX))
+
+		if (oddRow) :
+			# If the mouse is above either line
+			if (mY < nfx(mX) or mY < pfx(mX)) :
+				#We're in the top hex
+				hexR = sectorR - 1
+				hexC = sectorC
+				print 'top'
+			# The mouse is left of the midpoint
+			elif (mX < midPoint) :
+				hexC = sectorC - 1
+				hexR = sectorR
+				print 'left'
+			# The mouse is on or to the right of the midpoint	
+			else :
+				hexC = sectorC
+				hexR = sectorR
+				print 'right'
+		else :
+			if (mX < midPoint and mY < nfx(mX)) :
+				# we're in the top left  hex
+				hexR = sectorR - 1
+				hexC = sectorC - 1
+				print 'top left'
+			elif (mX > midPoint and mY < pfx(mX)) :
+				#we're in the top right hex
+				hexR = sectorR -1
+				hexC = sectorC 			
+				print 'top right'	
+			else :
+				# We're in the main hex
+				hexR = sectorR
+				hexC = sectorC
+				print 'main'
+		return (hexR, hexC)
