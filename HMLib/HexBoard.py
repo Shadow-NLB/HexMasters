@@ -81,7 +81,7 @@ class HexGameBoard :
 	""" This class represents a hexagonal game board.
 	At the moment it is just a container a configuration.
 	"""
-	def __init__(self, hexSideLength, gridColor, boardSpaceDim	) :
+	def __init__(self, hexSideLength, gridColor, boardSpaceDim) :
 
 		self.surface = pygame.Surface(boardSpaceDim)
 		rows, columns = self.surface.get_size()
@@ -104,7 +104,8 @@ class HexGameBoard :
 		for i in range(count) :
 			pygame.draw.lines(surface, self.gridColor, True, self.hex.points((xOffset, yOffset)))
 			xOffset = xOffset + width
-
+	def clearGrid(self) :
+		self.surface.fill(0)
 	def drawGrid(self) :
 		for r in range(self.rows) :
 			self.drawRow(self.surface, self.columns, r)
@@ -112,13 +113,13 @@ class HexGameBoard :
 
 	def highlightHex(self, loc) :
 		row, col = loc
-		if (row < 0 or row > self.rows or col < 0 or col > self.columns) :
-			raise IndexError('Row/Col not valid')
+		#if (row < 0 or row > self.rows or col < 0 or col > self.columns) :
+		#	raise IndexError('Row/Col not valid')
 		#figure out where to drop hex highlight
 		xOffset = self.hex.tileOffset()[0] if (row % 2 == 1) else 0
 		xOffset = xOffset + col * self.hex.width()
 		yOffset = self.hex.tileOffset()[1] * row
-		pygame.draw.lines(self.surface, (0, 255, 0), True, self.hex.points((xOffset, yOffset)), 2)
+		pygame.draw.polygon(self.surface, (0, 255, 0), self.hex.points((xOffset, yOffset)))
 
 	def drawSectors(self) :
 		# Sector size for mouse detection
@@ -157,48 +158,41 @@ class HexGameBoard :
 		mY = mY % sectorHeight
 
 		# functions that define the diagonal lines in the sector
-		nfx = lambda u: self.hex.tSideA() - (u % (sectorWidth / 2)) / 2
-		pfx = lambda u: (u % (sectorWidth / 2)) / 2 
+		def nfx(u) : self.hex.tSideA() - (u % (sectorWidth / 2)) / 2
+		def pfx(u) : (u % (sectorWidth / 2)) / 2 
 
 		midPoint = self.hex.tSideB()
 		oddRow = (sectorR % 2 == 1)
 
 		hexR = 0 
 		hexC = 0
-		print 'mY = {0} nfx(mX) = {1})'.format(mY, nfx(mX))
-		print 'mY = {0} pfx(mX) = {1})'.format(mY, pfx(mX))
-
 		if (oddRow) :
 			# If the mouse is above either line
 			if (mY < nfx(mX) or mY < pfx(mX)) :
 				#We're in the top hex
 				hexR = sectorR - 1
 				hexC = sectorC
-				print 'top'
+
 			# The mouse is left of the midpoint
 			elif (mX < midPoint) :
 				hexC = sectorC - 1
 				hexR = sectorR
-				print 'left'
+
 			# The mouse is on or to the right of the midpoint	
 			else :
 				hexC = sectorC
 				hexR = sectorR
-				print 'right'
 		else :
 			if (mX < midPoint and mY < nfx(mX)) :
 				# we're in the top left  hex
 				hexR = sectorR - 1
 				hexC = sectorC - 1
-				print 'top left'
 			elif (mX > midPoint and mY < pfx(mX)) :
 				#we're in the top right hex
 				hexR = sectorR -1
 				hexC = sectorC 			
-				print 'top right'	
 			else :
 				# We're in the main hex
 				hexR = sectorR
 				hexC = sectorC
-				print 'main'
 		return (hexR, hexC)

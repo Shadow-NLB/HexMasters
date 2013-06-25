@@ -1,5 +1,6 @@
 import pygame, sys,os
 import HMLib.HexBoard
+import HMLib.IFrame
 from pygame.locals import * 
 import itertools
 
@@ -20,6 +21,14 @@ pygame.init()
 window = pygame.display.set_mode((SCREEN_X,SCREEN_Y))
 screen = pygame.display.get_surface()
 
+#frames
+worldFrame = HMLib.IFrame.IFrame(None, (0,0), (SCREEN_X, SCREEN_Y), (100,100,0))
+gridFrame = HMLib.IFrame.IFrame(worldFrame, (10, 10), (100,100), (255, 0, 255))
+
+frameList = [gridFrame, worldFrame]
+
+
+
 #blank the screen
 screen.fill(0)
 grid = HMLib.HexBoard.HexGameBoard(45, gray, (SCREEN_X, SCREEN_Y))
@@ -27,7 +36,6 @@ grid.drawGrid()
 grid.highlightHex((0,0))
 grid.highlightHex((5,5))
 screen.blit(grid.surface, (0,0))
-
 
 ## draw the hex grid
 #count = SCREEN_Y / (2 * HEX_SIDE)
@@ -42,19 +50,34 @@ def input (events) :
 			return False
 	return True
 
+def mouseHandler(frameList) :
+	mp = pygame.mouse.get_pos()
+
+	# Go through framelist to figure out who gets the mouse pointer
+	for frame in frameList :
+		if frame.pointInFrame(mp) :
+			print 'Point in frame'
+			print frame
+			break
+
+def renderFrames(surface, frameList):
+	# Go through framelist in reverse order to render
+	for frame in reversed(frameList) :
+		frame.renderFrame(surface.subsurface(frame.getRenderBox()))
+
 loop = True
 while loop :
 	loop = input(pygame.event.get())
 	mp = pygame.mouse.get_pos()
-
-	print mp
-	print grid.getMouseHexPosition(mp)
+	grid.clearGrid()
+	grid.drawGrid()
 	grid.highlightHex(grid.getMouseHexPosition(mp))
-	grid.drawSectors()
+	#grid.drawSectors()
 	screen.blit(grid.surface, (0,0))
+	renderFrames(screen, frameList)
+	mouseHandler(frameList)
 	pygame.display.flip()
 	raw_input("Press enter to continue")
-print grid.hex.width()
-print grid.hex.height()
+
 raw_input("Press enter to continue")
 pygame.quit()
