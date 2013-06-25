@@ -1,5 +1,6 @@
-import pygame.draw
-import pygame.surface
+import HMLib.Frame
+import pygame.image
+
 #MODULE CONTANTS
 sinThirty = .5
 cosThirty = .866
@@ -76,14 +77,14 @@ class Hexagon :
 		
 # This class represents a hexagonal game board
 # At the moment it is just a container for parameters
-class HexGameBoard :
+class HexGameBoard(HMLib.Frame.Frame):
 	#__doc__
 	""" This class represents a hexagonal game board.
 	At the moment it is just a container a configuration.
 	"""
-	def __init__(self, hexSideLength, gridColor, boardSpaceDim) :
-
-		self.surface = pygame.Surface(boardSpaceDim)
+	def __init__(self, hexSideLength, parentFrame, parentPosition, surface) :
+		# Call base class initialize
+		HMLib.Frame.Frame.__init__(self, parentFrame, parentPosition, surface)
 		rows, columns = self.surface.get_size()
 		self.hex = Hexagon(hexSideLength)
 
@@ -91,7 +92,13 @@ class HexGameBoard :
 		self.rows = rows / (self.hex.height() - self.hex.tileOffset()[1])
 		self.columns = columns / self.hex.width()
 		
-		self.gridColor = gridColor
+		self.gridColor = (40, 40, 40, 40)
+
+	def renderFrame(self):
+		self.drawGrid()
+	
+	def handleMouse(self, mousePos) :
+		self.highlightHex(self.getMouseHexLocation(mousePos))
 	
 	def drawRow(self, surface, count, rowNumber) :
 		grassTile = makeHexTile(grassFlat, self.hex, (0,0))
@@ -104,8 +111,7 @@ class HexGameBoard :
 		for i in range(count) :
 			pygame.draw.lines(surface, self.gridColor, True, self.hex.points((xOffset, yOffset)))
 			xOffset = xOffset + width
-	def clearGrid(self) :
-		self.surface.fill(0)
+
 	def drawGrid(self) :
 		for r in range(self.rows) :
 			self.drawRow(self.surface, self.columns, r)
@@ -137,17 +143,16 @@ class HexGameBoard :
 		for i  in xrange(cols) :
 			pygame.draw.line(self.surface, (255, 255, 0), (i * sectorWidth, 0), ((i) * sectorWidth, self.surface.get_size()[1]))
 		
-
-
-	def getMouseHexPosition(self, mousePosition) :
+	def getMouseHexLocation(self, mousePosition) :
 		
+		# normalize mouse position to frame reference
+		mX, mY = self.getRelativePos(mousePosition)
+
 		# Sector size for mouse detection
 		# yDim is the yTileOffset
 		sectorHeight = self.hex.tileOffset()[1]
 		# xDim is width of hex, 
 		sectorWidth = self.hex.width()
-
-		mX, mY = mousePosition
 
 		#First figure out which sector the mouse is in
 		sectorC = mX / sectorWidth

@@ -27,7 +27,7 @@
   <ItemGroup>
     <Compile Include="HexMasters.py" />
     <Compile Include="HMLib\HexBoard.py" />
-    <Compile Include="HMLib\IFrame.py" />
+    <Compile Include="HMLib\Frame.py" />
     <Compile Include="HMLib\ResourceManager.py" />
     <Compile Include="HMLib\__init__.py" />
   </ItemGroup>
