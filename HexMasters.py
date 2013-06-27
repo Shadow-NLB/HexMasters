@@ -59,7 +59,7 @@ while loop :
 	renderFrames(screen, frameList)
 	mouseHandler(frameList)
 	pygame.display.flip()
-	raw_input("Press enter to continue")
+	#raw_input("Press enter to continue")
 
 raw_input("Press enter to continue")
 pygame.quit()
