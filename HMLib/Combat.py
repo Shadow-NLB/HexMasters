@@ -11,14 +11,14 @@ def roll(numberDice):
 
 def rollHits(numberDice):
 	total = 0
-	for dice in roll(numberDice):
-		total += 1 if dice < 3 else 0
+	for die in roll(numberDice):
+		total += 1 if die < 3 else 0
 	return total
 	
 def rollBlocks(numberDice):
 	total = 0
-	for dice in roll(numberDice):
-		total += 1 if dice == 1 else 0
+	for die in roll(numberDice):
+		total += 1 if die == 1 else 0
 	return total
 	
 def combat(battleState):
