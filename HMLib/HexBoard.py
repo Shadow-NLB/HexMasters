@@ -1,13 +1,14 @@
-import HMLib.Frame
+import HMLib.Frame as Frame
+import HMLib.GameBoard as GameBoard
 import pygame.image
 
-#MODULE CONTANTS
+#MODULE CONSTANTS
 sinThirty = .5
 cosThirty = .866
-grassFlat = pygame.image.load('Q:\\python\\HexMasters\\Resource\\Tiles\\GrassHex.png')
-dirtTile = pygame.image.load('Q:\\python\\HexMasters\\Resource\\Tiles\\DirtHex.png')
-waterTile = pygame.image.load('Q:\\python\\HexMasters\\Resource\\Tiles\\WaterHex.png')
- 
+grassFlat = pygame.image.load(r'Q:\HexMasters\Resource\Tiles\GrassHex.png')
+dirtTile = pygame.image.load(r'Q:\HexMasters\Resource\Tiles\DirtHex.png')
+waterTile = pygame.image.load(r'Q:\HexMasters\Resource\Tiles\WaterHex.png')
+
 def makeHexTile(surface, hex, offset) :
 	maskSurface = surface.copy()
 	maskSurface.fill((0,0,0,255))
@@ -76,22 +77,21 @@ class Hexagon :
 
 		
 # This class represents a hexagonal game board
-# At the moment it is just a container for parameters
-class HexGameBoard(HMLib.Frame.Frame):
+class HexGameBoard(Frame.Frame):
 	#__doc__
 	""" This class represents a hexagonal game board.
 	At the moment it is just a container a configuration.
 	"""
 	def __init__(self, hexSideLength, parentFrame, parentPosition, surface) :
 		# Call base class initialize
-		HMLib.Frame.Frame.__init__(self, parentFrame, parentPosition, surface)
+		super(HexGameBoard,self).__init__(parentFrame, parentPosition, surface)
 		rows, columns = self.surface.get_size()
 		self.hex = Hexagon(hexSideLength)
 
 		# get a row and column count front the surface dimensions
 		self.rows = rows / (self.hex.height() - self.hex.tileOffset()[1])
 		self.columns = columns / self.hex.width()
-		
+		self.tiles = [[grassFlat for x in xrange(columns)] for y in xrange(rows)]
 		self.gridColor = (40, 40, 40, 40)
 
 	def renderFrame(self):
@@ -110,6 +110,7 @@ class HexGameBoard(HMLib.Frame.Frame):
 		# Draw each hex in the row
 		for i in range(count) :
 			pygame.draw.lines(surface, self.gridColor, True, self.hex.points((xOffset, yOffset)))
+			self.surface.blit(makeHexTile(self.tiles[rowNumber][i],self.hex, (xOffset, yOffset)),(xOffset, yOffset))
 			xOffset = xOffset + width
 
 	def drawGrid(self) :
@@ -127,6 +128,7 @@ class HexGameBoard(HMLib.Frame.Frame):
 		yOffset = self.hex.tileOffset()[1] * row
 		pygame.draw.polygon(self.surface, (0, 255, 0), self.hex.points((xOffset, yOffset)))
 
+	# This is essentially a debug method
 	def drawSectors(self) :
 		# Sector size for mouse detection
 		# yDim is the yTileOffset

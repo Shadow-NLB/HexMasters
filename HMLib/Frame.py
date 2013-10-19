@@ -8,7 +8,7 @@ def pointInBox(point, boxDim) :
 	else :
 		return True
 		
-class Frame :
+class Frame(object):
 	color = (40,40,40)
 	""" Defines an interface for frame objects
 	

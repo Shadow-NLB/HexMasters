@@ -1,8 +1,6 @@
-import pygame, sys,os
-import HMLib.HexBoard
-import HMLib.IFrame
-from pygame.locals import * 
-import itertools
+import pygame
+import HMLib.Frame
+
 
 # Constants
 SCREEN_X = 800
@@ -27,14 +25,14 @@ worldFrame.color = (0,100, 100)
 menuFrame = HMLib.Frame.Frame(worldFrame, (10, 10), screen.subsurface((10,10, 100, 100)))
 #blank the screen
 screen.fill(0)
-grid = HMLib.HexBoard.HexGameBoard(45, worldFrame, (60,60), screen.subsurface(60,60, 200, 200))
+grid = HMLib.HexBoard.HexGameBoard(45, worldFrame, (0,0), screen.subsurface(0,0, 300,300))
 grid2 = HMLib.HexBoard.HexGameBoard(45, worldFrame, (400,400), screen.subsurface(400,400, 200, 200))
 grid2.gridColor = (240, 0, 240)
 frameList = [menuFrame, grid2, grid, worldFrame]
 
 def input (events) :
 	for event in events :
-		if (event.type == QUIT) :
+		if (event.type == pygame.QUIT) :
 			return False
 	return True
 
@@ -53,13 +51,16 @@ def renderFrames(surface, frameList):
 	for frame in reversed(frameList) :
 		frame.renderFrame()
 
+fontThing = pygame.font.Font(None,45)
+
 loop = True
 while loop :
 	loop = input(pygame.event.get())
 	renderFrames(screen, frameList)
 	mouseHandler(frameList)
+	screen.blit(fontThing.render('This is text', True, (0,0,0)), (10,10))
 	pygame.display.flip()
 	#raw_input("Press enter to continue")
 
+
 raw_input("Press enter to continue")
-pygame.quit()
