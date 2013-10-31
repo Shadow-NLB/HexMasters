@@ -7,6 +7,7 @@
 
 # General purpose functions to convert between coordinate systems
 
+
 def cuTax_(x,y,z):
 	# q=x r=z
 	return (x,z)
@@ -18,22 +19,49 @@ def axTcu_(q,r):
 def axTcu(loc):
 	q,r = loc
 	return axTcu_(q,r)
+
+
+# NOW the questions is how do i connect this with the pixel-based aspects of game?
+  
 	
+class BoundsException(Exception):
+   def __init__self(self, loc):
+      self.location = loc
+   def __repr__(self):
+      return 'Location: {0} is out-of-bounds'.format(self.location)      
 
-
-class map(object):
+class HexMap(object):
+   ''' Represents a hexagonal map of locations
+   
+   This class is meant to be the "logical" representation of the map. It stores objects at locations through use of a hashmap.
+   Positions are referenced by q,r also called axial coordinates. See http://www.redblobgames.com/grids/hexagons/ for a guide to
+   coordinate systems and as the source of many of the algorithms.
+   '''
 	def __init__(self, dims):
 		self.q_dim,self.r_dim = dims
 		self.size = self.q_dim * self.r_dim
 		self.map = dict()
 	def mapKey(self, loc):
-		q,r = loc
-		# Bounds Checking
-		if 0 <= q < self.q_dim and 0 <= r <= self.r_dim:
-			return loc
-		else:
-			raise BaseException("Not within map bounds")
+		# At the moment, the key is just the tuple, but it could be anything in the future,
+      # this method offers a very easy point of adjustment
+      
+      # Exception throwing bounds check
+      checkBounds(loc)
+      
+      # Return the location to use as the key
+      return loc
+         
+   def inBounds(self, loc):
+      ''' Returns true if the location is in the bounds of the map'''
+      return 0 <= q < self.q_dim and 0 <= r <= self.r_dim
+      
+   def checkBounds(self, loc):
+      ''' Throws a BoundsException if the location is not in the map'''
+		if not self.inBounds(loc):
+			raise BoundsException(loc)
+      
 	def insert(self, piece, loc):
+      ''' '''
 		key = self.mapKey(loc)
 		if key in self.map:
 			raise BaseException("space occupied")
@@ -51,7 +79,7 @@ class map(object):
 		self.insert(self, self.get(locA), locB) 
 		self.remove(locA)
 	
-	def range(locA, distance):
+	def range(self, locA, distance):
 		'''Lists of locations that are within [distance] from [locaA]'''
       
       # This algorithm is described in cube coordinates
@@ -66,13 +94,22 @@ class map(object):
             d_z = -d_x-d_y
             # Actual point is each of the d_'s applied to current loc
             # Convert to q,r and append
-            results.append(cuTax_(x + d_x, y + d_y, z + d_z))
+            qr_loc = cuTax_(x + d_x, y + d_y, z + d_z)
+            
+            # Check bounds and return only locations on the map
+            if self.inBounds(qr_loc):
+               results.append()
+               
       return results
          
             
-	
-	def distance(locA, locB):
-		''' Determines the "straight line" distance between two locations.'''
+	def distance(self, locA, locB):
+		''' Determines the "straight line" distance between two locations.
+      
+      Throws BoundsException if a location is not in bounds'''
+      checkBounds(locA)
+      checkBounds(locB)
+      
 		#Adjacency matrix
 		# Calc the abs difference between q's
 		dif_q = locA[0] - locB[0]
@@ -80,7 +117,7 @@ class map(object):
 		dif_r = locA[1] - locB[1]
 		# Calc difference between diff's
 		dif_dif = dif_q-dif_r
-		# Return the largest absolute of the three quantities
+		# Return the largest absolute value of the three quantities
 		return max(abs(diq_q),abs(dif_r),abs(dif_Dif))
 		
 	def areAdjacent(locA, locB):
