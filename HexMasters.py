@@ -1,7 +1,8 @@
 import pygame
 import HMLib.Frame
-
-
+import HMLib.Hexagon
+import HMLib.HexMap
+import HMLib.BasicUnits as Units
 # Constants
 SCREEN_X = 800
 SCREEN_Y = 800
@@ -19,16 +20,27 @@ pygame.init()
 window = pygame.display.set_mode((SCREEN_X,SCREEN_Y))
 screen = pygame.display.get_surface()
 
-#frames
+
+# Establish frames
+# Top Level Frame
 worldFrame = HMLib.Frame.Frame(None, (0,0), screen)
 worldFrame.color = (0,100, 100)
-menuFrame = HMLib.Frame.Frame(worldFrame, (10, 10), screen.subsurface((10,10, 100, 100)))
+# HUD FRAME
+hudFrame = HMLib.Frame.Frame(worldFrame, (10, 10), screen.subsurface((10,10, 100, 100)))
+hudFrame.color = (100,100,100)
+
 #blank the screen
 screen.fill(0)
-grid = HMLib.HexBoard.HexGameBoard(45, worldFrame, (0,0), screen.subsurface(0,0, 300,300))
-grid2 = HMLib.HexBoard.HexGameBoard(45, worldFrame, (400,400), screen.subsurface(400,400, 200, 200))
-grid2.gridColor = (240, 0, 240)
-frameList = [menuFrame, grid2, grid, worldFrame]
+
+# Create the logical game board
+hexMap = HMLib.HexMap.HexMap(10,10)
+hexMap.insert(Units.Swordsmen(), (0,1))
+
+#establish the hexagon dimensions
+standard_hex = HMLib.Hexagon.Hexagon(45)
+gameBoardFrame = HMLib.HexBoard.HexGameBoard(hexMap, standard_hex, worldFrame, (0,0), screen.subsurface(0,0, 300,300))
+gameBoardFrame.gridColor = (240, 0, 240)
+frameList = [gameBoardFrame, hudFrame, worldFrame]
 
 def input (events) :
 	for event in events :

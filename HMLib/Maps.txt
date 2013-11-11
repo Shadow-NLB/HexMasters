@@ -1,0 +1,65 @@
+# This file is basically a utility for me to render maps with
+
+import HMLib.Hexagaon.Hexagon as Hexagon
+import pygame.image as pyg.image
+
+resourceRoot = (r'Q:\HexMasters\Resource\Tiles')
+grassFlat = pygame.image.load(resourceRoot + r'\GrassHex.png')
+dirtTile = pygame.image.load(resourceRoot + r'\DirtHex.png')
+waterTile = pygame.image.load(resourceRoot + r'\WaterHex.png')
+
+
+def makeHexTile(surface, hex) :
+	maskSurface = surface.copy()
+	maskSurface.fill((0,0,0,255))
+	tile = surface.copy()
+	pygame.draw.polygon(maskSurface, pygame.Color(255, 0, 0, 0),  hex.points())
+	tile.blit(maskSurface, (0,0), None, pygame.BLEND_RGBA_SUB)
+	return tile
+
+class MapDefinition(object):
+   def __init__(self, height=0, width=0, hex=Hexagon(10)):
+      self.map = [[for x in xrange(0,width)] for y in xrange(0,height)]
+      self.hex = hex
+   def makeHexTile(self, surface) :
+      maskSurface = surface.copy()
+      maskSurface.fill((0,0,0,255))
+      tile = surface.copy()
+      pygame.draw.polygon(maskSurface, pygame.Color(255, 0, 0, 0),  hex.points())
+      tile.blit(maskSurface, (0,0), None, pygame.BLEND_RGBA_SUB)
+      return tile
+   def renderToSurface(self):
+      surface = pygame.surface()
+      i,j = 0
+      for row in self.map:
+         i = i + 1
+         for tile in row:
+            j = j + 1
+            xOffset = self.hex.tileOffset()[0] if (i % 2 == 1) else 0
+            yOffset = self.hex.tileOffset()[1] * i
+            surface.blit(tile, (xOffset, yOffset));
+            
+# Use case
+
+# make a new map instance
+myMap = MapDefinition(height = 5, width = 5, hex = Hexagon(10))
+
+# import some visual resources
+resourceRoot = (r'Q:\HexMasters\Resource\Tiles')
+grassImage = pygame.image.load(resourceRoot + r'\GrassHex.png')
+dirtImage = pygame.image.load(resourceRoot + r'\DirtHex.png')
+waterImage = pygame.image.load(resourceRoot + r'\WaterHex.png')
+
+# Use the map to transform the resources into usable tiles
+grassTile = myMap.makeHexTile(grassImage)
+dirtTile = myMap.makeHexTile(dirtImage)
+waterTile = myMap.makeHexTile(waterImage)
+
+# Now make a bunch of assignments to the map "array" to actually set up the map
+myMap.map[:][:] = grassTile
+myMap.map[0:2][0:2] = waterTile
+
+pygame.image.save(myMap.renderToSurface(), r'C:\temp\renderedMap.PNG')
+
+
+
