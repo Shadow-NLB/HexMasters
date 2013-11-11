@@ -26,7 +26,7 @@ screen = pygame.display.get_surface()
 worldFrame = HMLib.Frame.Frame(None, (0,0), screen)
 worldFrame.color = (0,100, 100)
 # HUD FRAME
-hudFrame = HMLib.Frame.Frame(worldFrame, (10, 10), screen.subsurface((10,10, 100, 100)))
+hudFrame = HMLib.Frame.Frame(worldFrame, (0, 700), screen.subsurface((0,700, 800, 100)))
 hudFrame.color = (100,100,100)
 
 #blank the screen
@@ -38,7 +38,7 @@ hexMap.insert(Units.Swordsmen(), (0,1))
 
 #establish the hexagon dimensions
 standard_hex = HMLib.Hexagon.Hexagon(45)
-gameBoardFrame = HMLib.HexBoard.HexGameBoard(hexMap, standard_hex, worldFrame, (0,0), screen.subsurface(0,0, 300,300))
+gameBoardFrame = HMLib.HexBoard.HexGameBoard(hexMap, standard_hex, worldFrame, (50,50), screen.subsurface(50,50, 300,300))
 gameBoardFrame.gridColor = (240, 0, 240)
 frameList = [gameBoardFrame, hudFrame, worldFrame]
 
